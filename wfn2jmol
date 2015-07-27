@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+
+$data = "$ENV{'HOME'}/bin/data/data.med";
+$pbs= "$ENV{'HOME'}/bin/data/pbs.wfn2chg";
+
+for $x (@ARGV){
+        $x =~ s/.com//g;
+        $x =~ s/.log//g;
+        $x =~ s/.wfn//g;
+        $x =~ s/.fchk//g;
+        system("sed -e \"s/xxx/$x/ig\" $data > data.$x.med");
+        system("sed -e \"s/xxx/$x/ig\" $pbs > pbs.$x.wfn2chg");
+        system("qsub  pbs.$x.wfn2chg");
+}
+
