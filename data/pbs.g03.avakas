@@ -1,0 +1,39 @@
+#!/bin/csh -f
+#
+#PBS -V
+#PBS -j oe -N xxx
+#
+#PBS -l nodes=1:ppn=8
+#
+#PBS -l cput=960:00:00,walltime=00:119:00:00
+#PBS -l mem=10gb
+source /etc/profile.d/modules.csh
+module load /cm/shared/contrib/modulefiles/gaussian/g03
+module load torque
+
+set FileName="xxx"
+set MyFile="$FileName.com"
+set ScratchFile="$FileName.chk"
+
+cd $PBS_O_WORKDIR
+source $g03root/g03/bsd/g03.login_scratch
+
+if (! -d $GAUSS_SCRDIR ) then
+        mkdir $GAUSS_SCRDIR
+
+endif
+cd $GAUSS_SCRDIR
+# On se place dans le repertoire de donnees
+cp -p $PBS_O_WORKDIR/$MyFile .
+cp -p $PBS_O_WORKDIR/$ScratchFile .
+
+
+# execution du gaussian dans l'espace SCRATCH
+#alias timit '/usr/bin/time -f "Elapsed: %e  User: %U  System: %S  PageF: %F"'
+ g03 $MyFile
+
+# restitution des fichiers resultats
+cp -f *.log  $PBS_O_WORKDIR/.
+cp -f *.chk  $PBS_O_WORKDIR/.
+cp -f *wfn   $PBS_O_WORKDIR/.
+
