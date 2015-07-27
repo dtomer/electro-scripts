@@ -1,0 +1,18 @@
+#!/bin/csh -f
+ #
+ #PBS -V
+ #PBS -j oe -N xxx
+ #
+ #PBS -l nodes=1:ppn=8
+ #
+ #PBS -l cput=8:00:00,walltime=00:1:00:00
+ #PBS -l mem=28gb
+
+
+cd  $PBS_O_WORKDIR
+
+cp $HOME/bin/MW/settings.ini .
+
+Multiwfn < data.xxx.med > out.xxx.med
+
+pp-wfn2jmol.pl xxx.wfn
