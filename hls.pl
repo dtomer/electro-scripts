@@ -2,6 +2,8 @@
  use List::Util qw/ max min /;
  use Term::ANSIColor;
 
+# This script uses input from gaussian files to 
+
  # First one is the string contained in the starting molecule
  # Second one in the reduced state
 
