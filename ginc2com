@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+for $log (@ARGV) {
+
+             open LOG, "$log";
+
+                     $summary="";
+             while (<LOG>) {
+                     while (index($summary, '\\\@') == -1) {
+                         $_ =~ s/^\s+|\s+$//g;
+                         $summary .= $_;
+                         $_ = <LOG>;
+                     }
+                 }
+             
+    @all = split (/\\\\/ ,$summary);
+    $directives=$all[1];
+    $directives=~ s/geom=check guess=read//g;
+    $myinp = $all[3];
+    @geometry = split (/\\/ ,$all[3]);
+    $directives=~ s/ReadFC,//g;
+    for (@geometry) {s/,/    /g;}
+    $log=~s/.ginc/.com/g;
+    print "$log $directives @geometry  \n\ncao\n";
+    open COM, ">$log";
+    print COM "%Mem=9600Mb\n%NProcShared=8\n";
+    print COM "$directives\n\n $log \n\n";
+    foreach $line (@geometry) { print COM "$line\n"};
+    print COM "\n\n";
+    close COM
+}
+
