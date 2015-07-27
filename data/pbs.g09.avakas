@@ -1,0 +1,61 @@
+#!/bin/csh -f
+ #
+ #PBS -V
+ #PBS -j oe -N xxx
+ #
+ #PBS -l nodes=1:ppn=8
+ #
+ #PBS -l cput=240:00:00,walltime=00:24:00:00
+ #PBS -l mem=28gb
+
+ source /etc/profile.d/modules.csh
+ module load /cm/shared/contrib/modulefiles/gaussian/g09
+ module load torque
+
+ set FileName="xxx"
+ set MyFile="$FileName.com"
+ set ScratchFile="$FileName.chk"
+
+ cd $PBS_O_WORKDIR
+
+source $g09root/g09/bsd/g09.login_scratch
+
+
+ if (! -d $GAUSS_SCRDIR ) then
+         mkdir $GAUSS_SCRDIR
+
+ endif
+ cd $GAUSS_SCRDIR
+ # On se place dans le repertoire de donnees
+ cp -p $PBS_O_WORKDIR/$MyFile .
+ cp -p $PBS_O_WORKDIR/$ScratchFile .
+
+
+ # execution du gaussian dans l'espace SCRATCH
+ #alias timit '/usr/bin/time -f "Elapsed: %e  User: %U  System: %S  PageF: %F"'
+ g09 $MyFile
+
+ # restitution des fichiers resultats
+ cp -f *.log  $PBS_O_WORKDIR/.
+ cp -f *.chk  $PBS_O_WORKDIR/.
+ cp -f *wfn   $PBS_O_WORKDIR/.
+
+cd  $PBS_O_WORKDIR
+
+ set file="xxx"
+ set chk=$file.chk
+ set fchk=$file.fchk
+
+ echo Dealing with $file file ...
+ mkdir -p $file.cubes
+
+ formchk $chk $file.cubes/$fchk
+ cp $file.log $file.cubes/.
+
+ cubegen 8 density=scf  $file.cubes/$fchk $file.cubes/$file-den.cube 0 h
+ cubegen 8 MO=HOMO   $file.cubes/$fchk $file.cubes/$file-HOMO.cube 0 h
+ cubegen 8 MO=LUMO  $file.cubes/$fchk $file.cubes/$file-LUMO.cube 0 h
+ cubegen 8 spin=scf  $file.cubes/$fchk $file.cubes/$file-spinden.cube 0 h
+ cubegen 8 potential=scf  $file.cubes/$fchk $file.cubes/$file-pot.cube 0 h
+
+ rm pbs*
